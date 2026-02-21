@@ -31,37 +31,37 @@ class SearchController extends Controller
     }
 
     public function search(Request $request)
-    {
-        $data = $this->fetchData();
+{
+    $data = $this->fetchData();
 
-        if (!$data) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal mengambil data external'
-            ], 500);
-        }
-
-        $query = collect($data);
-
-        if ($request->has('nama')) {
-            $query = $query->where('nama', $request->nama);
-        }
-
-        if ($request->has('nim')) {
-            $query = $query->where('nim', $request->nim);
-        }
-
-        if ($request->has('ymd')) {
-            $query = $query->where('ymd', $request->ymd);
-        }
-
-        $result = $query->values();
-
+    if (!$data) {
         return response()->json([
-            'status' => true,
-            'message' => 'Search berhasil',
-            'total' => $result->count(),
-            'data' => $result
-        ]);
+            'status' => false,
+            'message' => 'Gagal mengambil data external'
+        ], 500);
     }
+
+    $collection = collect($data);
+
+    if ($request->nama) {
+        $collection = $collection->where('nama', $request->nama);
+    }
+
+    if ($request->nim) {
+        $collection = $collection->where('nim', $request->nim);
+    }
+
+    if ($request->ymd) {
+        $collection = $collection->where('ymd', $request->ymd);
+    }
+
+    $result = $collection->values();
+
+    return response()->json([
+        'status' => true,
+        'message' => $result->isEmpty() ? 'Data tidak ditemukan' : 'Search berhasil',
+        'total' => $result->count(),
+        'data' => $result
+    ]);
+}
 }
